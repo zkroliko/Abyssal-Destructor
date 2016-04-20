@@ -27,6 +27,14 @@ class Sub:
         self.angle = 0
         self.angle_change = 0
 
+    def change_position(self, x, y):
+        if self.area.is_valid_position(x, y):
+            self.x = x
+            self.y = y
+        else:
+            pass
+            # raise some exception or do nothing
+        
     def change_orientation(self, value):
         val = min(self.ORIENTATION_MAX, max(self.ORIENTATION_MIN, value))
         self.angle_change = self.__map_angle(val)
@@ -37,3 +45,4 @@ class Sub:
 
     def __map_angle(self, angle):
         return self.angle_change * self.ORIENTATION_TO_ANGLE
+
