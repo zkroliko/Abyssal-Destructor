@@ -8,6 +8,10 @@ class Area:
     WARN_X1 = (1-WARN_RATE)*SIZE_X
     WARN_Y0 = WARN_RATE*SIZE_Y
     WARN_Y1 = (1-WARN_RATE)*SIZE_Y
+    # Start margin (so the sub won't hit the wall at start)
+    MARGIN_RATE = 0.2
+    MARGIN_X = MARGIN_RATE*SIZE_X
+    MARGIN_Y = MARGIN_RATE*SIZE_Y
 
     def is_valid_position(x, y):
         return True if x > 0 and x < SIZE_X and y > 0 and y < SIZE_Y else False

@@ -1,5 +1,7 @@
 import random
 
+from numpy.core.umath import cos, sin
+
 from server.Area import Area
 
 
@@ -12,6 +14,20 @@ class Sub:
             self.x = random.uniform(0, Area.SIZE_X)
             self.y = random.uniform(0, Area.SIZE_Y)
 
+    ORIENTATION_MIN = 0
+    ORIENTATION_MAX = 31
+    ORIENTATION_TO_ANGLE = 1
+
+    def __init__(self, x=None, y=None):
+        if x is None or y is None:
+            self.x = random.uniform(Area.MARGIN_X, Area.SIZE_X-Area.MARGIN_X)
+            self.y = random.uniform(Area.MARGIN_Y, Area.SIZE_Y-Area.MARGIN_Y)
+        else:
+            self.x = x
+            self.y = y
+        self.angle = 0
+        self.angle_change = 0
+
     def change_position(self, x, y):
         if self.area.is_valid_position(x, y):
             self.x = x
@@ -19,8 +35,14 @@ class Sub:
         else:
             # raise some exception or do nothing
         
-
     def change_orientation(self, value):
-        pass
+        val = min(self.ORIENTATION_MAX, max(self.ORIENTATION_MIN, value))
+        self.angle_change = self.__map_angle(val)
 
+    def move(self):
+        self.x += cos(self.angle)*self.STEP_SIZE
+        self.y += sin(self.angle)*self.STEP_SIZE
 
+    def __map_angle(self, angle):
+        return self.angle_change*self.ORIENTATION_TO_ANGLE
+        # TODO: Make mapping
