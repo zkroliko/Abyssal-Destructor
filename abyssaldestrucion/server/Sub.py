@@ -17,13 +17,14 @@ class Sub:
     ANGLE_CHANGE_WIDTH = np.pi / 8
     ORIENTATION_TO_ANGLE = ANGLE_CHANGE_WIDTH / (ORIENTATION_MAX - ORIENTATION_MIN)
 
-    def __init__(self, x=None, y=None):
+    def __init__(self, area, x=None, y=None):
         if x is None or y is None:
             self.x = random.uniform(Area.MARGIN_X, Area.SIZE_X - Area.MARGIN_X)
             self.y = random.uniform(Area.MARGIN_Y, Area.SIZE_Y - Area.MARGIN_Y)
         else:
             self.x = x
             self.y = y
+        self.area = area
         self.angle = 0
         self.angle_change = 0
 
@@ -40,8 +41,9 @@ class Sub:
         self.angle_change = self.__map_angle(val)
 
     def move(self):
-        self.x += cos(self.angle) * self.STEP_SIZE
-        self.y += sin(self.angle) * self.STEP_SIZE
+        x = self.x + cos(self.angle) * self.STEP_SIZE
+        y = self.y + sin(self.angle) * self.STEP_SIZE
+        self.change_position(x,y)
 
     def __map_angle(self, angle):
         return self.angle_change * self.ORIENTATION_TO_ANGLE
