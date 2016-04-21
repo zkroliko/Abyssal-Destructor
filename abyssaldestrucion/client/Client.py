@@ -7,8 +7,21 @@ from Topics import Topics, main_topic
 class Client:
 
     def on_message(self, client, obj, msg):
-        print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
-        # reading message
+        # if no other handler serviced that message
+        print("Should not have got message from that topic: " + msg.topic)
+
+    def on_message_sonar_in(self):
+        pass
+
+    def on_message_game_state(self):
+        pass
+
+    def on_message_warning(self):
+        pass
+
+    def on_message_life(self):
+        pass
+
 
 
     def on_connect(self, client, userdata, flags, rc):
@@ -73,6 +86,10 @@ class Client:
 
     def handle_methods(self, client):
         client.on_message = self.on_message
+        client.message_callback_add(main_topic + "/" + Topics.life, self.on_message_life)
+        client.message_callback_add(main_topic + "/" + Topics.warning, self.on_message_warning)
+        client.message_callback_add(main_topic + "/" + Topics.game_state, self.on_message_game_state)
+        client.message_callback_add(main_topic + "/" + Topics.sonar_in, self.on_message_sonar_in)
         client.on_connect = self.on_connect
         client.on_publish = self.on_publish
         client.on_subscribe = self.on_subscribe
