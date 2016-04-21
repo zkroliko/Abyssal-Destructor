@@ -17,6 +17,7 @@ class Sub:
     ANGLE_CHANGE_WIDTH = np.pi / 8
     ORIENTATION_TO_ANGLE = ANGLE_CHANGE_WIDTH / (ORIENTATION_MAX - ORIENTATION_MIN)
 
+
     def __init__(self, area, x=None, y=None):
         if x is None or y is None:
             self.x = random.uniform(Area.MARGIN_X, Area.SIZE_X - Area.MARGIN_X)
