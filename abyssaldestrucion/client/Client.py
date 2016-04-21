@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import sys
 import random
-import ControllerUtil
+from ControllerUtil import ControllerUtil
 from Topics import Topics, main_topic
 from SerialStub import *
 from threading import Thread
@@ -70,15 +70,15 @@ class Client:
 
     def change_direction(self, orientation_change):
         # orientation change from 0-63
-        pass
+        print("Changed direction to " + orientation_change)
 
     def fire(self):
         # send to server information you fired
-        pass
+        print("Fired!")
 
     def send_ping(self):
         # sending ping to enemy vessel
-        pass
+        print("Ping sent!")
 
 
     # def on_log(self, ):
@@ -107,8 +107,13 @@ class Client:
                 ch = ord(cc)
                 print ch
 
-            # logic reading input from controller
-
+                # logic reading input from controller
+                if ControllerUtil.is_button_1_pressed(ch):
+                    self.fire()
+                if ControllerUtil.is_button_2_pressed(ch):
+                    self.send_ping()
+                if ControllerUtil.get_knob_position(ch) is not None:
+                    self.change_direction(ControllerUtil.get_knob_position())
 
 
     def __init__(self):
