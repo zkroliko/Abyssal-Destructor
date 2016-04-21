@@ -46,14 +46,15 @@ class Visualiser(threading.Thread):
 
     def animate(self):
         self.__draw_one_frame()
-        #self.master.after(120, self.animate())
+        self.master.after(120, self.animate())
 
     def step(self):
         self.step +=1
 
     def draw(self):
         # Code to check steps
-        self.lock.release()
+        if self.lock.locked():
+            self.lock.release()
 
     def __draw_one_frame(self):
         # Lock

@@ -14,9 +14,9 @@ class TestSubClass(unittest.TestCase):
 
         v = Visualiser(a)
         v.start()
-        v.draw()
+        for i in range(0, 100):
+            v.draw()
         v.master.mainloop()
-
 
 
 if __name__ == '__main__':
