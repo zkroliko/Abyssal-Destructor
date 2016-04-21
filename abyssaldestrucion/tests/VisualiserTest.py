@@ -2,9 +2,10 @@ import random
 import unittest
 from time import sleep
 
-from server.Area import Area
-from server.Sub import Sub
-from server.Visualiser import Visualiser
+from abyssaldestrucion.server.Area import Area
+from abyssaldestrucion.server.Sub import Sub
+from abyssaldestrucion.server.Visualiser import Visualiser
+
 
 
 class TestSubClass(unittest.TestCase):

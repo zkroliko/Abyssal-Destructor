@@ -3,7 +3,7 @@ import random
 import numpy as np
 from numpy.core.umath import cos, sin
 
-from server.Area import Area
+from abyssaldestrucion.server.Area import Area
 
 
 class Sub:

@@ -2,8 +2,30 @@ import paho.mqtt.client as mqtt
 import sys
 import random
 from threading import Thread
+from abyssaldestrucion.client.Message import Message
 
 class Main:
+
+    def __init__(self):
+        self.message = Message.Message()
+        self.game_on = True
+        self.server = mqtt.Client()
+        print("Server created")
+        self.handle_methods()
+        self.server.connect("127.0.0.1")
+        self.subscribe_on_topics()
+
+        # thread logic
+
+        self.server.loop_forever()
+
+
+
+    def handle_methods(self):
+        pass
+
+    def subscribe_on_topics(self):
+        pass
 
     def on_message(self, client, obj, msg):
         # if no other handler serviced that message
