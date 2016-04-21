@@ -17,8 +17,8 @@ class Message:
     def get_warning_msg(self, value):
         return str(value)
 
-    def get_life_msg(self, lives):
-        return str(lives)
+    def get_life_msg(self, lives, id):
+        return str(id) + ":" + str(lives)
 
     def get_gamestate_msg(self, id):
         return str(id)

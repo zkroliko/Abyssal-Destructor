@@ -18,15 +18,19 @@ class Client:
     def on_message_sonar_in(self):
         pass
 
-    def on_message_game_state(self):
+    def on_message_game_state(self, client, userdata, message):
         pass
 
     def on_message_warning(self):
         pass
 
-    def on_message_life(self):
-        pass
-
+    def on_message_life(self, client, userdata, message):
+        l = str.split(message.payload, ":")
+        id = int(l[0])
+        lives = int(l[1])
+        print l
+        if (lives == 1 or lives == 2) and id == self.id:
+            self.vessel_hit(lives)
 
 
     def on_connect(self, client, userdata, flags, rc):
@@ -52,11 +56,11 @@ class Client:
 
     def vessel_hit(self, lives):
         if lives == 2:
+            print("Two lifes left")
             # change life diode to orange
-            pass
         elif lives == 1:
             # change life diode to yellow
-            pass
+            print("One life left!")
         else:
             # change life diode to red
             pass
