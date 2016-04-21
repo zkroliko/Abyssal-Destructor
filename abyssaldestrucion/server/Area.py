@@ -20,4 +20,4 @@ class Area:
         return True if x < Area.WARN_X0 or x > Area.WARN_X1 or y < Area.WARN_Y0 or y > Area.WARN_Y1 else False
 
     def __init__(self):
-        pass
+        self.vessels = []

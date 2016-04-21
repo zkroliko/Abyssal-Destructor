@@ -9,7 +9,7 @@ class Client:
     def on_message(self, client, obj, msg):
         print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
         # reading message
-        
+
 
     def on_connect(self, client, userdata, flags, rc):
         print("Client connected")
@@ -45,6 +45,10 @@ class Client:
         # rel_dist from 0 - 1: 0 - 0 distance, 1 - max distnace on map
         pass
         # changing distance diode behaviour
+
+    def warning(self, value):
+        # warning has value from 0-31 depending on time spent in restricted area
+        pass
 
     # methods to server
 
