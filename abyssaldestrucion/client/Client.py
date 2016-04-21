@@ -5,6 +5,8 @@ from ControllerUtil import ControllerUtil
 from Topics import Topics, main_topic
 from SerialStub import *
 from threading import Thread
+import Message
+import thread
 
 
 class Client:
@@ -29,6 +31,8 @@ class Client:
 
     def on_connect(self, client, userdata, flags, rc):
         print("Client connected")
+        if len(userdata) > 0: print("Client has user data: " + userdata)
+        sys.stdout.flush()
 
     def on_publish(self, client, obj, mid):
         pass
@@ -71,31 +75,34 @@ class Client:
     def change_direction(self, orientation_change):
         # orientation change from 0-63
         print("Changed direction to " + orientation_change)
+        self.client.publish(main_topic + "/" + Topics.direction, self.message.get_direction_msg(orientation_change))
 
     def fire(self):
         # send to server information you fired
         print("Fired!")
+        self.client.publish(main_topic + "/" + Topics.weapon, self.message.get_fire_msg())
 
     def send_ping(self):
         # sending ping to enemy vessel
         print("Ping sent!")
+        self.client.publish(main_topic + "/" + Topics.sonar_out, self.message.get_sonarout_msg())
 
 
     # def on_log(self, ):
     #     pass
 
-    def subscribe_on_topics(self, client):
-        client.subscribe(main_topic + "/+", 0)
+    def subscribe_on_topics(self):
+        self.client.subscribe(main_topic + "/+", 0)
 
-    def handle_methods(self, client):
-        client.on_message = self.on_message
-        client.message_callback_add(main_topic + "/" + Topics.life, self.on_message_life)
-        client.message_callback_add(main_topic + "/" + Topics.warning, self.on_message_warning)
-        client.message_callback_add(main_topic + "/" + Topics.game_state, self.on_message_game_state)
-        client.message_callback_add(main_topic + "/" + Topics.sonar_in, self.on_message_sonar_in)
-        client.on_connect = self.on_connect
-        client.on_publish = self.on_publish
-        client.on_subscribe = self.on_subscribe
+    def handle_methods(self):
+        self.client.on_message = self.on_message
+        self.client.message_callback_add(main_topic + "/" + Topics.life, self.on_message_life)
+        self.client.message_callback_add(main_topic + "/" + Topics.warning, self.on_message_warning)
+        self.client.message_callback_add(main_topic + "/" + Topics.game_state, self.on_message_game_state)
+        self.client.message_callback_add(main_topic + "/" + Topics.sonar_in, self.on_message_sonar_in)
+        self.client.on_connect = self.on_connect
+        self.client.on_publish = self.on_publish
+        self.client.on_subscribe = self.on_subscribe
 
 
     def controller_loop(self):
@@ -118,16 +125,20 @@ class Client:
 
     def __init__(self):
         self.id = random.randrange(0, 1000, 1)
-        print("debug2")
-        client = mqtt.Client(str(self.id))
-        print("debug")
+        self.message = Message.Message()
+        self.client = mqtt.Client(str(self.id), userdata=str(self.id))
+        print("Client created")
 #        client.on_log = self.on_log
-        self.handle_methods(client)
-        client.connect("127.0.0.1")
-        self.subscribe_on_topics(client)
-        thread = Thread(target=self.controller_loop(), args=())
+        self.handle_methods()
+        self.client.connect("127.0.0.1")
+        self.subscribe_on_topics()
+        thread = Thread(target=self.controller_loop, args=())
         thread.start()
-        client.loop_forever()
+        #thread.start_new_thread(self.controller_loop, ())
+        #thread.start_new_thread(self.client.loop_forever, ())
+        print("debug")
+        sys.stdout.flush()
+        self.client.loop_forever()
         thread.join()
 
 client = Client()
