@@ -8,7 +8,7 @@ from server.Area import Area
 
 class Sub:
     # How far the sub moves in one iteration
-    STEP_SIZE = 20.0
+    STEP_SIZE = 2.0
 
     # For validating input
     ORIENTATION_MIN = 0

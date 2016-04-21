@@ -8,7 +8,7 @@ from server.Sub import Sub
 
 
 class Visualiser(threading.Thread):
-    FRAMES_PER_STEP = 20
+    STEPS_PER_FRAME = 5
 
     # It can work with given scale or given sizes
     SCALE = 0.5
@@ -32,39 +32,46 @@ class Visualiser(threading.Thread):
         self.lock = threading.Lock()
         self.lock.acquire()
 
+        # List of subs projected map
         self.subs = []
 
         self.master = Tk()
         self.w = Canvas(self.master, width=sx(Area.SIZE_X), height=sy(Area.SIZE_Y))
+        self.master.protocol("WM_DELETE_WINDOW", self.callback)
         self.w.config(borderwidth=sx(10))
         self.w.pack()
 
         self.__draw_warning_areas()
 
-    def run(self):
-        self.animate()
+        # Now we can start
+        self.start()
 
-    def animate(self):
-        self.__draw_one_frame()
-        self.master.after(120, self.animate())
+    def callback(self):
+        self.master.quit()
+
+    def run(self):
+        self.master.mainloop()
 
     def step(self):
-        self.step +=1
+        if self.steps >= Visualiser.STEPS_PER_FRAME:
+            self.draw()
+            self.steps = 0
+        else:
+            self.steps += 1
 
     def draw(self):
         # Code to check steps
-        if self.lock.locked():
-            self.lock.release()
+
+        self.__draw_one_frame()
+        self.master.update()
 
     def __draw_one_frame(self):
         # Lock
-        self.lock.acquire()
         # ------ SECTION START
         self.__clear_ships()
         s = Sub(self.area)
         self.__draw_ships()
         # ------ SECTION END
-        # Unclock
 
     def __draw_ships(self):
         for s in self.area.vessels:

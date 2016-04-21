@@ -1,4 +1,5 @@
 import unittest
+from time import sleep
 
 from server.Area import Area
 from server.Sub import Sub
@@ -16,11 +17,19 @@ class TestSubClass(unittest.TestCase):
         a.vessels.append(sub3)
 
         v = Visualiser(a)
-        v.start()
-        for i in range(0, 100):
+
+        for i in range(0, 5000):
+            sleep(0.05)
             sub1.move()
-            v.draw()
-        v.master.mainloop()
+            sub1.angle += 0.01
+            sub2.move()
+            sub2.angle += 0.02
+            sub3.move()
+            sub3.angle += 0.03
+
+            v.step()
+
+
 
 
 if __name__ == '__main__':
