@@ -1,4 +1,4 @@
-from Tkinter import Tk, Canvas, mainloop
+import Tkinter
 
 
 class Weapon:
