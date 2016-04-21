@@ -23,8 +23,12 @@ class Client:
         if who_won == self.id: self.game_over(True)
         else: self.game_over(False)
 
-    def on_message_warning(self):
-        pass
+    def on_message_warning(self, client, userdata, message):
+        l = str.split(message.payload, ":")
+        id = int(l[0])
+        value = int(l[1])
+        if (value >= 0 and value < 31 and id == self.id):
+            self.warning(value)
 
     def on_message_life(self, client, userdata, message):
         l = str.split(message.payload, ":")

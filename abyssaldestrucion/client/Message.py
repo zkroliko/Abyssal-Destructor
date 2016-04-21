@@ -14,8 +14,9 @@ class Message:
         return str(value)
 
     # broker -> client
-    def get_warning_msg(self, value):
-        return str(value)
+    def get_warning_msg(self, value, id):
+        # value is from 0-31 indicating how long vessel is in warning area
+        return str(id) + ":" + str(value)
 
     def get_life_msg(self, lives, id):
         return str(id) + ":" + str(lives)
