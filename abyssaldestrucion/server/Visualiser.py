@@ -8,7 +8,7 @@ from server.Sub import Sub
 
 
 class Visualiser(threading.Thread):
-    STEPS_PER_FRAME = 5
+    STEPS_PER_FRAME = 1
 
     # It can work with given scale or given sizes
     SCALE = 0.5

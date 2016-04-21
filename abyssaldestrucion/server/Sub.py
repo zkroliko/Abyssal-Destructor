@@ -8,15 +8,14 @@ from server.Area import Area
 
 class Sub:
     # How far the sub moves in one iteration
-    STEP_SIZE = 2.0
+    STEP_SIZE = 0.5
 
     # For validating input
     ORIENTATION_MIN = 0
-    ORIENTATION_MAX = 31
+    ORIENTATION_MAX = 63
     # How the sub changes direction
-    ANGLE_CHANGE_WIDTH = np.pi / 8
+    ANGLE_CHANGE_WIDTH = np.pi / 32
     ORIENTATION_TO_ANGLE = ANGLE_CHANGE_WIDTH / (ORIENTATION_MAX - ORIENTATION_MIN)
-
 
     def __init__(self, area, x=None, y=None):
         if x is None or y is None:
@@ -29,23 +28,27 @@ class Sub:
         self.angle = 0
         self.angle_change = 0
 
-    def change_position(self, x, y):
+    def __change_position(self, x, y):
         if self.area.is_valid_position(x, y):
             self.x = x
             self.y = y
         else:
             pass
             # raise some exception or do nothing
-        
+
     def change_orientation(self, value):
         val = min(self.ORIENTATION_MAX, max(self.ORIENTATION_MIN, value))
         self.angle_change = self.__map_angle(val)
 
     def move(self):
+        self.angle += self.angle_change
         x = self.x + cos(self.angle) * self.STEP_SIZE
         y = self.y + sin(self.angle) * self.STEP_SIZE
-        self.change_position(x,y)
+        self.__change_position(x, y)
 
     def __map_angle(self, angle):
-        return self.angle_change * self.ORIENTATION_TO_ANGLE
+        if angle < Sub.ORIENTATION_MAX/2:
+            return (angle - Sub.ORIENTATION_MAX/2)* self.ORIENTATION_TO_ANGLE
+        else:
+            return angle * self.ORIENTATION_TO_ANGLE
 

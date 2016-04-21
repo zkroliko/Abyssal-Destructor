@@ -1,3 +1,4 @@
+import random
 import unittest
 from time import sleep
 
@@ -19,13 +20,14 @@ class TestSubClass(unittest.TestCase):
         v = Visualiser(a)
 
         for i in range(0, 5000):
-            sleep(0.05)
+            sleep(0.02)
+            random.seed(i)
+            sub1.change_orientation(random.randrange(0,63))
             sub1.move()
-            sub1.angle += 0.01
+            sub2.change_orientation(random.randrange(0,63))
             sub2.move()
-            sub2.angle += 0.02
+            sub3.change_orientation(random.randrange(0,63))
             sub3.move()
-            sub3.angle += 0.03
 
             v.step()
 
