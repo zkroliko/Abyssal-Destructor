@@ -21,6 +21,7 @@ class Message:
         return str(id) + ":" + str(lives)
 
     def get_gamestate_msg(self, id):
+        # id of who has won
         return str(id)
 
     def get_sonarin_msg(self, id):
