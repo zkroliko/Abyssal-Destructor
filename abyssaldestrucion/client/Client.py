@@ -1,7 +1,10 @@
 import paho.mqtt.client as mqtt
 import sys
 import random
+import ControllerUtil
 from Topics import Topics, main_topic
+from SerialStub import *
+from threading import Thread
 
 
 class Client:
@@ -95,14 +98,31 @@ class Client:
         client.on_subscribe = self.on_subscribe
 
 
+    def controller_loop(self):
+        ser_stub = SerialStub()
+        print "start"
+        while True:
+            cc = chr(ser_stub.read())
+            if len(cc) > 0:
+                ch = ord(cc)
+                print ch
+
+            # logic reading input from controller
+
+
+
     def __init__(self):
         self.id = random.randrange(0, 1000, 1)
+        print("debug2")
         client = mqtt.Client(str(self.id))
-
+        print("debug")
 #        client.on_log = self.on_log
         self.handle_methods(client)
         client.connect("127.0.0.1")
         self.subscribe_on_topics(client)
+        thread = Thread(target=self.controller_loop(), args=())
+        thread.start()
         client.loop_forever()
+        thread.join()
 
 client = Client()
