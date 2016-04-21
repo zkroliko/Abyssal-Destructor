@@ -8,6 +8,8 @@ class Client:
 
     def on_message(self, client, obj, msg):
         print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+        # reading message
+        
 
     def on_connect(self, client, userdata, flags, rc):
         print("Client connected")
@@ -17,6 +19,47 @@ class Client:
 
     def on_subscribe(self, client, obj, mid, granted_ops):
         pass
+
+    # methods from server
+
+    def game_over(self, game_won):
+        if game_won:
+            print("Game over! You won!")
+            # output for winning
+        else:
+            print("Game over! You lost!")
+            # output for lost
+
+    def vessel_hit(self, lives):
+        if lives == 2:
+            # change life diode to orange
+            pass
+        elif lives == 1:
+            # change life diode to yellow
+            pass
+        else:
+            # change life diode to red
+            pass
+
+    def ping_received(self, rel_dist):
+        # rel_dist from 0 - 1: 0 - 0 distance, 1 - max distnace on map
+        pass
+        # changing distance diode behaviour
+
+    # methods to server
+
+    def change_direction(self, orientation_change):
+        # orientation change from 0-63
+        pass
+
+    def fire(self):
+        # send to server information you fired
+        pass
+
+    def send_ping(self):
+        # sending ping to enemy vessel
+        pass
+
 
     # def on_log(self, ):
     #     pass
