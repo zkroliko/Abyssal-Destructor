@@ -2,13 +2,13 @@ import paho.mqtt.client as mqtt
 import sys
 import random
 from threading import Thread
-from abyssaldestrucion.client.Message import Message
-from abyssaldestrucion.client.Topics import main_topic
-from abyssaldestrucion.server.Area import Area
-from abyssaldestrucion.server.Visualiser import Visualiser
+from Message import Message
+from Topics import main_topic
+from Area import Area
+from Visualiser import Visualiser
 from time import sleep
-from abyssaldestrucion.client.Topics import *
-from abyssaldestrucion.server.Sub import *
+from Topics import *
+from Sub import *
 
 
 class Main:
@@ -17,7 +17,7 @@ class Main:
     SLEEP_LENGTH = 0.1
 
     def __init__(self):
-        self.message = Message.Message()
+        self.message = Message()
         self.game_on = True
         self.server = mqtt.Client()
         print("Server created")

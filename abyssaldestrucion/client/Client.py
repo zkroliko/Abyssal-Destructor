@@ -7,6 +7,8 @@ from SerialStub import *
 from threading import Thread
 import Message
 import thread
+import time
+import serial
 
 
 class Client:
@@ -15,8 +17,13 @@ class Client:
         # if no other handler serviced that message
         print("Should not have got message from that topic: " + msg.topic)
 
-    def on_message_sonar_in(self):
-        pass
+    def on_message_sonar_in(self, client, userdata, message):
+        print("Received sonar_in " + message.payload)
+        l = str.split(message.payload, ":")
+        id = int(l[0])
+        distance = float(l[1])
+        if self.id == id:
+            self.ping_received(distance)
 
     def on_message_game_state(self, client, userdata, message):
         who_won = int(message.payload)
@@ -56,10 +63,15 @@ class Client:
         if game_won:
             print("Game over! You won!")
             # output for winning
+            self.ser.write(chr(64+8+4))
+            self.ser.write(chr(32+1))
 
         else:
             print("Game over! You lost!")
             # output for lost
+            self.ser.write(chr(64+32+16))
+            self.ser.write(chr(32+1))
+
         self.game_on = False
         self.client.loop_stop()
         self.client.disconnect()
@@ -67,18 +79,24 @@ class Client:
     def vessel_hit(self, lives):
         if lives == 2:
             print("Two lifes left")
-            # change life diode to orange
+            self.ser.write(chr(64+8+4))
         elif lives == 1:
-            # change life diode to yellow
+            self.ser.write(chr(64+2+1))
             print("One life left!")
         else:
-            # change life diode to red
-            pass
+            self.ser.write(chr(64+32+16))
 
     def ping_received(self, rel_dist):
         # rel_dist from 0 - 1: 0 - 0 distance, 1 - max distnace on map
-        pass
         # changing distance diode behaviour
+        print("ping received " + str(rel_dist))
+        t = rel_dist/2.0
+        for i in xrange(10):
+            self.ser.write(chr(32+1))
+            time.sleep(t)
+            self.ser.write(chr(32))
+            time.sleep(t)
+
 
     def warning(self, value):
         # warning has value from 0-31 depending on time spent in restricted area
@@ -88,7 +106,7 @@ class Client:
 
     def change_direction(self, orientation_change):
         # orientation change from 0-63
-        print("Changed direction to " + orientation_change)
+        print("Changed direction to " + str(orientation_change))
         self.client.publish(main_topic + "/" + Topics.direction, self.message.get_direction_msg(orientation_change))
 
     def fire(self):
@@ -100,10 +118,6 @@ class Client:
         # sending ping to enemy vessel
         print("Ping sent!")
         self.client.publish(main_topic + "/" + Topics.sonar_out, self.message.get_sonarout_msg())
-
-
-    # def on_log(self, ):
-    #     pass
 
     def subscribe_on_topics(self):
         self.client.subscribe(main_topic + "/+", 0)
@@ -120,10 +134,10 @@ class Client:
 
 
     def controller_loop(self):
-        ser_stub = SerialStub()
+        self.ser.write(chr(128+32+16+8+4))
         print "start"
         while self.game_on:
-            cc = chr(ser_stub.read())
+            cc = self.ser.read(1)
             if len(cc) > 0:
                 ch = ord(cc)
                 print ch
@@ -134,23 +148,28 @@ class Client:
                 if ControllerUtil.is_button_2_pressed(ch):
                     self.send_ping()
                 if ControllerUtil.get_knob_position(ch) is not None:
-                    self.change_direction(ControllerUtil.get_knob_position())
+                    self.change_direction(ControllerUtil.get_knob_position(ch))
+
+    #def sonar_loop(self):
+    #    while self.game_on
 
 
     def __init__(self):
         self.id = random.randrange(0, 1000, 1)
         self.message = Message.Message()
+        self.ser = serial.Serial('/dev/ttyS0', 38400, timeout=1)
         self.game_on = True
         self.client = mqtt.Client(str(self.id), userdata=str(self.id))
+        self.distance = 1
         print("Client created")
-#        client.on_log = self.on_log
+
         self.handle_methods()
-        self.client.connect("127.0.0.1")
+        self.client.connect("192.168.17.52")
         self.subscribe_on_topics()
+
         thread = Thread(target=self.controller_loop, args=())
         thread.start()
-        #thread.start_new_thread(self.controller_loop, ())
-        #thread.start_new_thread(self.client.loop_forever, ())
+
         print("debug")
         sys.stdout.flush()
         self.client.loop_forever()

@@ -3,7 +3,7 @@ import random
 import numpy as np
 from numpy.core.umath import cos, sin
 
-from abyssaldestrucion.server.Area import Area
+from Area import Area
 
 
 class Sub:
@@ -51,4 +51,3 @@ class Sub:
             return (angle - Sub.ORIENTATION_MAX/2)* self.ORIENTATION_TO_ANGLE
         else:
             return angle * self.ORIENTATION_TO_ANGLE
-

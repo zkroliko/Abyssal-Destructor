@@ -10,3 +10,4 @@ class Topics(Enum):
     game_state = "game_state"
     life = "life"
     warning = "warning"
+    registering = "registering"
