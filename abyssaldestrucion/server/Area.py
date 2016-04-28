@@ -1,3 +1,5 @@
+import numpy as np
+
 class Area:
     # Sizes
     SIZE_X = 1000.0
@@ -21,3 +23,7 @@ class Area:
 
     def __init__(self):
         self.vessels = []
+
+    def diagonal_length(self):
+        return np.sqrt(np.power(self.SIZE_X,2) + np.power(self.SIZE_Y,2))
+

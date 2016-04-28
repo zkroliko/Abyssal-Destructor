@@ -23,6 +23,9 @@ class Sub:
     ANGLE_CHANGE_WIDTH = np.pi / 32
     ORIENTATION_TO_ANGLE = ANGLE_CHANGE_WIDTH / (ORIENTATION_MAX - ORIENTATION_MIN)
 
+    # Warn
+    WARNING_POSITIONS = 31
+
     def __init__(self, area, x=None, y=None, name=None):
         if x is None or y is None:
             self.x = random.uniform(Area.MARGIN_X, Area.SIZE_X - Area.MARGIN_X)
@@ -73,5 +76,18 @@ class Sub:
         return np.sqrt(np.power(dx, 2) + np.power(dy, 2))
 
     def rel_distance_to(self, target):
-        area_diagonal_length = np.sqrt(np.power(self.area.SIZE_X,2) + np.power(self.area.SIZE_Y,2))
-        return self.distance_to(target)/area_diagonal_length
+        return self.distance_to(target)/self.area.diagonal_length()
+
+    def __distance_edge(self):
+        dx = min(self.x - self.area.SIZE_X, self.x)
+        dy = min(self.y - self.area.SIZE_Y, self.y)
+        rdx = min(self.x - self.area.SIZE_X, self.x)/(Area.WARN_RATE*Area.SIZE_X)
+        rdy = min(self.y - self.area.SIZE_Y, self.y)/(Area.WARN_RATE*Area.SIZE_Y)
+        print "DATA"
+        print rdx
+        print rdy
+        return min(abs(rdx),abs(rdy))
+
+    def rel_distance_edge(self):
+        # TODO: Not scalling correctly
+        return int(self.__distance_edge())%self.WARNING_POSITIONS

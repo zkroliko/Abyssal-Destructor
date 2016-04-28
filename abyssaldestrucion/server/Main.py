@@ -12,10 +12,12 @@ from Sub import *
 from client.Message import Message
 from client.Topics import Topics, main_topic
 
+
 class GameState(Enum):
     waiting = "waiting"
     running = "running"
     victory = "victory"
+
 
 class Main:
     MAX_GAME_LENGTH = 1000000
@@ -51,7 +53,11 @@ class Main:
             sleep(Main.SLEEP_LENGTH)
             if self.state == GameState.running:
                 for sub in self.area.vessels:
-                    sub.move()
+                    effect = sub.move()
+                    if effect == MoveEffect.warn:
+                        self.warn_sub(sub)
+                    elif effect == MoveEffect.bad:
+                        self.destroy_boat(sub)
                 self.vis.step()
             self.mind_game_state()
 
@@ -61,10 +67,11 @@ class Main:
             self.state = GameState.running
         elif self.state == GameState.running and len(self.area.vessels) == 1:
             self.state = GameState.victory
+            print "--- Game ended and victor is %s ---" % (self.area.vessels[0].name)
             self.announce_victor(self.area.vessels[0])
 
     def announce_victor(self, victor):
-        self.client.publish(main_topic + "/" + Topics.game_state, str(victor.id))
+        self.client.publish(main_topic + "/" + Topics.game_state, str(victor.name))
 
     def handle_methods(self):
         self.client.on_message = self.on_message
@@ -76,9 +83,11 @@ class Main:
     def subscribe_on_topics(self):
         self.client.subscribe(main_topic + "/+", 0)
 
+
     def on_message(self, client, obj, msg):
         # if no other handler serviced that message
-        print("Should not have got message from that topic: " + msg.topic)
+        #print("Should not have got message from that topic: " + msg.topic)
+        pass
 
     def on_message_register(self, server, userdata, msg):
         if msg and len(msg.payload) > 0:
@@ -112,11 +121,11 @@ class Main:
             if target != source:
                 print "Boat %s will receive a ping from %s" % (target.name, source.name)
                 distance = source.rel_distance_to(target)
-                self.send_ping(source,distance)
-                self.send_ping(target,distance)
+                self.send_ping(source, distance)
+                self.send_ping(target, distance)
 
     def send_ping(self, target, distance):
-        self.client.publish(main_topic + "/" + Topics.sonar_in, "%s:%s" % (str(target.name),str(distance)))
+        self.client.publish(main_topic + "/" + Topics.sonar_in, "%s:%s" % (str(target.name), str(distance)))
 
     def on_message_direction(self, server, userdata, message):
         l = str.split(message.payload, ":")
@@ -175,7 +184,11 @@ class Main:
         self.client.publish(main_topic + "/" + Topics.life, str(id))
 
     def warn_sub(self, sub):
-        pass
+        distance = sub.rel_distance_edge()
+        self.inform_of_warning(sub, distance)
+
+    def inform_of_warning(self, sub, distance):
+        self.client.publish(main_topic + "/" + Topics.warning, "%s:%s" % (str(sub.name), str(distance)))
 
 
 main = Main()
