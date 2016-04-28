@@ -11,17 +11,16 @@ from client.Topics import Topics, main_topic
 
 
 class Main:
-
     MAX_GAME_LENGTH = 1000000
     SLEEP_LENGTH = 0.1
 
     def __init__(self):
         self.message = Message()
         self.game_on = True
-        self.server = mqtt.Client()
+        self.client = mqtt.Client()
         print("Server created")
         self.handle_methods()
-        self.server.connect("127.0.0.1")
+        self.client.connect("127.0.0.1")
         self.subscribe_on_topics()
 
         self.id_to_sub = {}
@@ -32,7 +31,7 @@ class Main:
         thread = Thread(target=self.game_loop, args=())
         thread.start()
 
-        self.server.loop_forever()
+        self.client.loop_forever()
 
     def game_loop(self):
         for i in range(Main.MAX_GAME_LENGTH):
@@ -41,17 +40,15 @@ class Main:
                 sub.move()
             self.vis.step()
 
-
     def handle_methods(self):
-        self.server.on_message = self.on_message
-        self.server.message_callback_add(main_topic+"/"+Topics.sonar_in, self.on_message_sonar_in)
-        self.server.message_callback_add(main_topic+"/"+Topics.direction, self.on_message_direction)
-        self.server.message_callback_add(main_topic+"/"+Topics.weapon, self.on_message_weapon)
-        self.server.message_callback_add(main_topic+"/"+Topics.registering, self.on_message_register)
-
+        self.client.on_message = self.on_message
+        self.client.message_callback_add(main_topic + "/" + Topics.sonar_in, self.on_message_sonar_in)
+        self.client.message_callback_add(main_topic + "/" + Topics.direction, self.on_message_direction)
+        self.client.message_callback_add(main_topic + "/" + Topics.weapon, self.on_message_weapon)
+        self.client.message_callback_add(main_topic + "/" + Topics.registering, self.on_message_register)
 
     def subscribe_on_topics(self):
-        self.server.subscribe(main_topic + "/+", 0)
+        self.client.subscribe(main_topic + "/+", 0)
 
     def on_message(self, client, obj, msg):
         # if no other handler serviced that message
@@ -61,13 +58,12 @@ class Main:
         if msg and len(msg.payload) > 0:
             id = int(msg.payload)
             sub = Sub(self.area, name=id)
-            #TODO unique
+            # TODO unique
             self.id_to_sub[id] = sub
             self.area.vessels.append(sub)
             print "New user: %s" % (id)
         else:
             print "Failed to register, no msg"
-
 
     def on_message_sonar_in(self):
         pass
@@ -97,8 +93,6 @@ class Main:
         else:
             print "No boat by name %s" % (id)
 
-
-
     def on_connect(self, client, userdata, flags, rc):
         print("Server connected")
 
@@ -109,10 +103,9 @@ class Main:
         pass
 
     def destroy_boats(self, boats):
-        if isinstance(boats,list):
+        if isinstance(boats, list):
             for boat in boats:
                 self.destroy_boat(boat)
-
 
     def destroy_boat(self, hit):
         found_id = None
@@ -128,8 +121,8 @@ class Main:
         else:
             print ("ERROR: Unregistered sub has been hit")
 
-
     def inform_that_hit(self, id):
-        pass
+        self.client.publish(main_topic + "/" + Topics.life, str(id))
+
 
 main = Main()
