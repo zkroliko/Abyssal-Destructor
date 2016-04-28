@@ -2,10 +2,9 @@ import random
 import unittest
 from time import sleep
 
-from abyssaldestrucion.server.Area import Area
-from abyssaldestrucion.server.Sub import Sub
-from abyssaldestrucion.server.Visualiser import Visualiser
-
+from server.Area import Area
+from server.Sub import Sub
+from server.Visualiser import Visualiser
 
 
 class TestSubClass(unittest.TestCase):
@@ -31,9 +30,6 @@ class TestSubClass(unittest.TestCase):
             sub3.move()
 
             v.step()
-
-
-
 
 if __name__ == '__main__':
     unittest.main()

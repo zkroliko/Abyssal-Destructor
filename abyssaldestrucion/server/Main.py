@@ -2,13 +2,12 @@ import paho.mqtt.client as mqtt
 import sys
 import random
 from threading import Thread
-from Message import Message
-from Topics import main_topic
 from Area import Area
 from Visualiser import Visualiser
 from time import sleep
-from Topics import *
 from Sub import *
+from client.Message import Message
+from client.Topics import Topics, main_topic
 
 
 class Main:

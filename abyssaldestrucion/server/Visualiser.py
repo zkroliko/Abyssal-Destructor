@@ -2,9 +2,8 @@ import threading
 
 from Tkinter import Tk, Canvas, mainloop
 
-
-from abyssaldestrucion.server.Area import Area
-from abyssaldestrucion.server.Sub import Sub
+from server.Area import Area
+from server.Sub import Sub
 
 
 class Visualiser(threading.Thread):
