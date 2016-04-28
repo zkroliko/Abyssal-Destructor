@@ -79,7 +79,7 @@ class Main:
         sub = self.id_to_sub[id]
         if sub:
             print "Boat %s changing direction to %s" % (id, value)
-            sub.change_direction(value)
+            sub.change_orientation(value)
         else:
             print "No boat by name %s" % (id)
 
