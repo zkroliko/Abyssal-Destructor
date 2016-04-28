@@ -4,6 +4,7 @@ import numpy as np
 from numpy.core.umath import cos, sin
 
 from Area import Area
+from server.Weapon import Weapon
 
 
 class Sub:
@@ -27,6 +28,10 @@ class Sub:
         self.area = area
         self.angle = 0
         self.angle_change = 0
+        self.weapon = Weapon(self)
+
+    def fire(self):
+        return self.weapon.hit_by_firing()
 
     def __change_position(self, x, y):
         if self.area.is_valid_position(x, y):

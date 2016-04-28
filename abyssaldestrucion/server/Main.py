@@ -83,8 +83,21 @@ class Main:
         else:
             print "No boat by name %s" % (id)
 
-    def on_message_weapon(self):
-        pass
+    def on_message_weapon(self, server, userdata, message):
+        l = str.split(message.payload, ":")
+        id = int(l[0])
+        sub = self.id_to_sub[id]
+        if sub:
+            print "Boat %s firing" % (id)
+            hit = sub.fire()
+            if len(hit) > 0:
+                self.destroy_boats(hit)
+            else:
+                print "Boat %s missed" % (id)
+        else:
+            print "No boat by name %s" % (id)
+
+
 
     def on_connect(self, client, userdata, flags, rc):
         print("Server connected")
@@ -93,6 +106,20 @@ class Main:
         pass
 
     def on_subscribe(self, client, obj, mid, granted_ops):
+        pass
+
+    def destroy_boats(self, hit):
+        if isinstance(hit,list):
+            self.destroy_boat(hit)
+
+    def destroy_boat(self, hit):
+        for id, sub in self.id_to_sub.iteritems():
+            if sub == hit:
+                self.inform_that_hit(id)
+                self.id_to_sub.pop(id)
+                self.area.vessels.remove(sub)
+
+    def inform_that_hit(self, id):
         pass
 
 main = Main()
