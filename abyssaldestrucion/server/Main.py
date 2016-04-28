@@ -2,6 +2,9 @@ import paho.mqtt.client as mqtt
 import sys
 import random
 from threading import Thread
+
+from enum import Enum
+
 from Area import Area
 from Visualiser import Visualiser
 from time import sleep
@@ -9,10 +12,17 @@ from Sub import *
 from client.Message import Message
 from client.Topics import Topics, main_topic
 
+class GameState(Enum):
+    waiting = "waiting"
+    running = "running"
+    victory = "victory"
+
 
 class Main:
     MAX_GAME_LENGTH = 1000000
     SLEEP_LENGTH = 0.1
+
+    PLAYER_MAX = 2
 
     def __init__(self):
         self.message = Message()
@@ -23,6 +33,7 @@ class Main:
         self.client.connect("127.0.0.1")
         self.subscribe_on_topics()
 
+        self.state = GameState.waiting
         self.id_to_sub = {}
         self.area = Area()
         self.vis = Visualiser(self.area)
@@ -35,10 +46,26 @@ class Main:
 
     def game_loop(self):
         for i in range(Main.MAX_GAME_LENGTH):
+            # TODO: Refactor
+            if self.state == GameState.victory:
+                break
             sleep(Main.SLEEP_LENGTH)
-            for sub in self.area.vessels:
-                sub.move()
-            self.vis.step()
+            if self.state == GameState.running:
+                for sub in self.area.vessels:
+                    sub.move()
+                self.vis.step()
+            self.mind_game_state()
+
+    def mind_game_state(self):
+        if self.state == GameState.waiting and len(self.area.vessels) >= self.PLAYER_MAX:
+            print "--- Game started with %s players ---" % (len(self.area.vessels))
+            self.state = GameState.running
+        elif self.state == GameState.running and len(self.area.vessels) == 1:
+            self.state = GameState.victory
+            self.announce_victor(self.area.vessels[0])
+
+    def announce_victor(self, victor):
+        self.client.publish(main_topic + "/" + Topics.game_state, str(victor.id))
 
     def handle_methods(self):
         self.client.on_message = self.on_message
@@ -57,11 +84,14 @@ class Main:
     def on_message_register(self, server, userdata, msg):
         if msg and len(msg.payload) > 0:
             id = int(msg.payload)
-            sub = Sub(self.area, name=id)
-            # TODO unique
-            self.id_to_sub[id] = sub
-            self.area.vessels.append(sub)
-            print "New user: %s" % (id)
+            if self.state == GameState.waiting and len(self.area.vessels) < self.PLAYER_MAX:
+                sub = Sub(self.area, name=id)
+                # TODO unique
+                self.id_to_sub[id] = sub
+                self.area.vessels.append(sub)
+                print "New user: %s" % (id)
+            else:
+                print "User with id: %s tried to register but game is running" % (id)
         else:
             print "Failed to register, no msg"
 
@@ -72,8 +102,8 @@ class Main:
         l = str.split(message.payload, ":")
         id = int(l[0])
         value = int(l[1])
-        sub = self.id_to_sub[id]
-        if sub:
+        if self.id_to_sub.has_key(id):
+            sub = self.id_to_sub[id]
             print "Boat %s changing direction to %s" % (id, value)
             sub.change_orientation(value)
         else:
