@@ -1,11 +1,16 @@
 import random
 
 import numpy as np
+from enum import Enum
 from numpy.core.umath import cos, sin
 
 from Area import Area
 from server.Weapon import Weapon
 
+class MoveEffect(Enum):
+    good = "good"
+    warn = "warn"
+    bad = "bad"
 
 class Sub:
     # How far the sub moves in one iteration
@@ -39,9 +44,12 @@ class Sub:
         if self.area.is_valid_position(x, y):
             self.x = x
             self.y = y
+            if self.area.is_warning_position(x,y):
+                return MoveEffect.warn
+            else:
+                return MoveEffect.good
         else:
-            pass
-            # raise some exception or do nothing
+            return MoveEffect.bad
 
     def change_orientation(self, value):
         val = min(self.ORIENTATION_MAX, max(self.ORIENTATION_MIN, value))
@@ -51,10 +59,19 @@ class Sub:
         self.angle += self.angle_change
         x = self.x + cos(self.angle) * self.STEP_SIZE
         y = self.y + sin(self.angle) * self.STEP_SIZE
-        self.__change_position(x, y)
+        return self.__change_position(x, y)
 
     def __map_angle(self, angle):
-        if angle < Sub.ORIENTATION_MAX/2:
-            return (angle - Sub.ORIENTATION_MAX/2)* self.ORIENTATION_TO_ANGLE
+        if angle < Sub.ORIENTATION_MAX / 2:
+            return (angle - Sub.ORIENTATION_MAX / 2) * self.ORIENTATION_TO_ANGLE
         else:
             return angle * self.ORIENTATION_TO_ANGLE
+
+    def distance_to(self, target):
+        dx = self.x - target.x
+        dy = self.y - target.y
+        return np.sqrt(np.power(dx, 2) + np.power(dy, 2))
+
+    def rel_distance_to(self, target):
+        area_diagonal_length = np.sqrt(np.power(self.area.SIZE_X,2) + np.power(self.area.SIZE_Y,2))
+        return self.distance_to(target)/area_diagonal_length

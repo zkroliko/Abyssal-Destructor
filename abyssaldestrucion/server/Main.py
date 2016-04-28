@@ -17,7 +17,6 @@ class GameState(Enum):
     running = "running"
     victory = "victory"
 
-
 class Main:
     MAX_GAME_LENGTH = 1000000
     SLEEP_LENGTH = 0.1
@@ -69,7 +68,7 @@ class Main:
 
     def handle_methods(self):
         self.client.on_message = self.on_message
-        self.client.message_callback_add(main_topic + "/" + Topics.sonar_in, self.on_message_sonar_in)
+        self.client.message_callback_add(main_topic + "/" + Topics.sonar_out, self.on_message_sonar_in)
         self.client.message_callback_add(main_topic + "/" + Topics.direction, self.on_message_direction)
         self.client.message_callback_add(main_topic + "/" + Topics.weapon, self.on_message_weapon)
         self.client.message_callback_add(main_topic + "/" + Topics.registering, self.on_message_register)
@@ -95,8 +94,29 @@ class Main:
         else:
             print "Failed to register, no msg"
 
-    def on_message_sonar_in(self):
-        pass
+    def on_message_sonar_in(self, server, userdata, msg):
+        if msg and len(msg.payload) > 0:
+            l = str.split(msg.payload, ":")
+            id = int(l[0])
+            if self.id_to_sub.has_key(id):
+                sub = self.id_to_sub[id]
+                print "Boat %s is pinging" % (id)
+                self.ping(sub)
+            else:
+                print "No boat by name %s" % (id)
+        else:
+            print "Invalid message"
+
+    def ping(self, source):
+        for target in self.area.vessels:
+            if target != source:
+                print "Boat %s will receive a ping from %s" % (target.name, source.name)
+                distance = source.rel_distance_to(target)
+                self.send_ping(source,distance)
+                self.send_ping(target,distance)
+
+    def send_ping(self, target, distance):
+        self.client.publish(main_topic + "/" + Topics.sonar_in, "%s:%s" % (str(target.name),str(distance)))
 
     def on_message_direction(self, server, userdata, message):
         l = str.split(message.payload, ":")
@@ -153,6 +173,9 @@ class Main:
 
     def inform_that_hit(self, id):
         self.client.publish(main_topic + "/" + Topics.life, str(id))
+
+    def warn_sub(self, sub):
+        pass
 
 
 main = Main()
