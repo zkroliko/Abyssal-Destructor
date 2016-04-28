@@ -60,7 +60,7 @@ class Main:
     def on_message_register(self, server, userdata, msg):
         if msg and len(msg.payload) > 0:
             id = int(msg.payload)
-            sub = Sub(self.area)
+            sub = Sub(self.area, name=id)
             #TODO unique
             self.id_to_sub[id] = sub
             self.area.vessels.append(sub)
@@ -86,9 +86,9 @@ class Main:
     def on_message_weapon(self, server, userdata, message):
         l = str.split(message.payload, ":")
         id = int(l[0])
-        sub = self.id_to_sub[id]
-        if sub:
-            print "Boat %s firing" % (id)
+        if self.id_to_sub.has_key(id):
+            sub = self.id_to_sub[id]
+            print "Boat %s firing!!!" % (id)
             hit = sub.fire()
             if len(hit) > 0:
                 self.destroy_boats(hit)
@@ -108,16 +108,26 @@ class Main:
     def on_subscribe(self, client, obj, mid, granted_ops):
         pass
 
-    def destroy_boats(self, hit):
-        if isinstance(hit,list):
-            self.destroy_boat(hit)
+    def destroy_boats(self, boats):
+        if isinstance(boats,list):
+            for boat in boats:
+                self.destroy_boat(boat)
+
 
     def destroy_boat(self, hit):
+        found_id = None
         for id, sub in self.id_to_sub.iteritems():
-            if sub == hit:
-                self.inform_that_hit(id)
-                self.id_to_sub.pop(id)
-                self.area.vessels.remove(sub)
+            if sub is hit:
+                found_id = id
+                break
+        if found_id:
+            print "Sub with id %s has been hit" % (found_id)
+            self.inform_that_hit(found_id)
+            self.id_to_sub.pop(found_id)
+            self.area.vessels.remove(hit)
+        else:
+            print ("ERROR: Unregistered sub has been hit")
+
 
     def inform_that_hit(self, id):
         pass

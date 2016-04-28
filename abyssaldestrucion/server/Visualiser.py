@@ -4,6 +4,7 @@ from Tkinter import Tk, Canvas, mainloop
 
 from server.Area import Area
 from server.Sub import Sub
+import numpy as np
 
 
 class Visualiser(threading.Thread):
@@ -20,6 +21,9 @@ class Visualiser(threading.Thread):
     VESSEL_X = 16
     VESSEL_Y = 16
 
+    # For displaying angle
+    ANGLE_SIZE = 15
+
     def __init__(self, area):
         super(Visualiser, self).__init__()
         self.area = area
@@ -32,7 +36,7 @@ class Visualiser(threading.Thread):
         self.lock.acquire()
 
         # List of subs projected map
-        self.subs = []
+        self.objects = []
 
         self.master = Tk()
         self.w = Canvas(self.master, width=sx(Area.SIZE_X), height=sy(Area.SIZE_Y))
@@ -67,7 +71,7 @@ class Visualiser(threading.Thread):
     def __draw_one_frame(self):
         # Lock
         # ------ SECTION START
-        self.__clear_ships()
+        self.__clear_objects()
         s = Sub(self.area)
         self.__draw_ships()
         # ------ SECTION END
@@ -81,10 +85,19 @@ class Visualiser(threading.Thread):
         ship_start = scale_ship_start(target.x, target.y)
         ship_end = scale_ship_end(target.x, target.y)
         ship = self.w.create_oval(ship_start[0], ship_start[1], ship_end[0], ship_end[1])
-        self.subs.append(ship)
+        self.objects.append(ship)
+        # TODO: Done quickly, not perfect, new function needed
+        text = self.w.create_text(ship_start[0],ship_start[1],text=target.name)
+        self.objects.append(text)
+        # TODO: Done quickly, not perfect, new function needed
+        ship_middle = (sx(target.x),sy(target.y))
+        line_end = (sx(target.x+np.cos(target.angle)*self.ANGLE_SIZE),sy(target.y+np.sin(target.angle)*self.ANGLE_SIZE))
+        line = self.w.create_line(ship_middle[0], ship_middle[1], line_end[0], line_end[1])
+        self.objects.append(line)
 
-    def __clear_ships(self):
-        for s in self.subs:
+
+    def __clear_objects(self):
+        for s in self.objects:
             self.w.delete(s)
 
     def __draw_warning_areas(self):
