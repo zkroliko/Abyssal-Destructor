@@ -14,7 +14,7 @@ class MoveEffect(Enum):
 
 class Sub:
     # How far the sub moves in one iteration
-    STEP_SIZE = 5.5
+    STEP_SIZE = 0.5
 
     # For validating input
     ORIENTATION_MIN = 0
@@ -59,10 +59,17 @@ class Sub:
         self.angle_change = self.__map_angle(val)
 
     def move(self):
-        self.angle += self.angle_change
+        self.__change_angle()
         x = self.x + cos(self.angle) * self.STEP_SIZE
         y = self.y + sin(self.angle) * self.STEP_SIZE
         return self.__change_position(x, y)
+
+    def __change_angle(self):
+        self.angle += self.angle_change
+        if self.angle >= np.pi*2:
+            self.angle -= np.pi*2
+        if self.angle <= -np.pi*2:
+            self.angle += np.pi*2
 
     def __map_angle(self, angle):
         if angle < Sub.ORIENTATION_MAX / 2:
@@ -83,11 +90,6 @@ class Sub:
         dy = min(abs(self.y - self.area.SIZE_Y), self.y)
         rdx = dx/(Area.WARN_RATE*Area.SIZE_X)
         rdy = dy/(Area.WARN_RATE*Area.SIZE_Y)
-        print "DATA"
-        print dx
-        print dy
-        print rdx
-        print rdy
         return min(abs(1-rdx),abs(1-rdy))
 
     def rel_distance_edge(self):
