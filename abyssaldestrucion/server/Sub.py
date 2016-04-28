@@ -14,7 +14,7 @@ class MoveEffect(Enum):
 
 class Sub:
     # How far the sub moves in one iteration
-    STEP_SIZE = 0.5
+    STEP_SIZE = 5.5
 
     # For validating input
     ORIENTATION_MIN = 0
@@ -79,15 +79,17 @@ class Sub:
         return self.distance_to(target)/self.area.diagonal_length()
 
     def __distance_edge(self):
-        dx = min(self.x - self.area.SIZE_X, self.x)
-        dy = min(self.y - self.area.SIZE_Y, self.y)
-        rdx = min(self.x - self.area.SIZE_X, self.x)/(Area.WARN_RATE*Area.SIZE_X)
-        rdy = min(self.y - self.area.SIZE_Y, self.y)/(Area.WARN_RATE*Area.SIZE_Y)
+        dx = min(abs(self.x - self.area.SIZE_X), self.x)
+        dy = min(abs(self.y - self.area.SIZE_Y), self.y)
+        rdx = dx/(Area.WARN_RATE*Area.SIZE_X)
+        rdy = dy/(Area.WARN_RATE*Area.SIZE_Y)
         print "DATA"
+        print dx
+        print dy
         print rdx
         print rdy
-        return min(abs(rdx),abs(rdy))
+        return min(abs(1-rdx),abs(1-rdy))
 
     def rel_distance_edge(self):
         # TODO: Not scalling correctly
-        return int(self.__distance_edge())%self.WARNING_POSITIONS
+        return max(int(self.__distance_edge()*self.WARNING_POSITIONS),self.WARNING_POSITIONS)
