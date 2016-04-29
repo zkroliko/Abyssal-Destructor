@@ -20,8 +20,8 @@ class GameState(Enum):
 
 
 class Main:
-    MAX_GAME_LENGTH = 1000000
-    SLEEP_LENGTH = 0.1
+    MAX_GAME_LENGTH = 10000
+    SLEEP_LENGTH = 0.02
 
     PLAYER_MAX = 2
 
@@ -35,6 +35,7 @@ class Main:
         self.subscribe_on_topics()
 
         self.state = GameState.waiting
+        print "--- Game waiting for players ---"
         self.id_to_sub = {}
         self.area = Area()
         self.vis = Visualiser(self.area)
@@ -86,7 +87,7 @@ class Main:
 
     def on_message(self, client, obj, msg):
         # if no other handler serviced that message
-        #print("Should not have got message from that topic: " + msg.topic)
+        # print("Should not have got message from that topic: " + msg.topic)
         pass
 
     def on_message_register(self, server, userdata, msg):
@@ -128,15 +129,22 @@ class Main:
         self.client.publish(main_topic + "/" + Topics.sonar_in, "%s:%s" % (str(target.name), str(distance)))
 
     def on_message_direction(self, server, userdata, message):
-        l = str.split(message.payload, ":")
-        id = int(l[0])
-        value = int(l[1])
-        if self.id_to_sub.has_key(id):
-            sub = self.id_to_sub[id]
-            print "Boat %s changing direction to %s" % (id, value)
-            sub.change_orientation(value)
+        if message and len(message.payload) > 0:
+            l = str.split(message.payload, ":")
+            if len(l) >= 2:
+                id = int(l[0])
+                value = int(l[1])
+                if self.id_to_sub.has_key(id):
+                    sub = self.id_to_sub[id]
+                    print "Boat %s changing direction to %s" % (id, value)
+                    sub.change_orientation(value)
+                else:
+                    print "No boat by name %s" % (id)
+            else:
+                 print "Invalid number of fields in message"
         else:
-            print "No boat by name %s" % (id)
+            print "Invalid message"
+
 
     def on_message_weapon(self, server, userdata, message):
         l = str.split(message.payload, ":")
@@ -181,7 +189,7 @@ class Main:
             print ("ERROR: Unregistered sub has been hit")
 
     def inform_that_hit(self, id):
-        self.client.publish(main_topic + "/" + Topics.life, str(id))
+        self.client.publish(main_topic + "/" + Topics.life, "%s:%s" % (str(id), 1))
 
     def warn_sub(self, sub):
         distance = sub.rel_distance_edge()

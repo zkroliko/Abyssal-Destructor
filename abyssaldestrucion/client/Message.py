@@ -4,14 +4,14 @@ class Message:
         pass
 
     # client -> broker
-    def get_sonarout_msg(self):
-        return "ping"
+    def get_sonarout_msg(self, nick):
+        return str(nick) + ":" + "ping"
 
-    def get_fire_msg(self):
-        return "fire"
+    def get_fire_msg(self, nick):
+        return str(nick) + ":" + "fire"
 
-    def get_direction_msg(self, value):
-        return str(value)
+    def get_direction_msg(self, value, nick):
+        return str(nick) + ":" + str(value)
 
     # broker -> client
     def get_warning_msg(self, value, id):

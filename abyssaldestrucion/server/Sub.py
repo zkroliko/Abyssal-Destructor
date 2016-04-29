@@ -20,7 +20,7 @@ class Sub:
     ORIENTATION_MIN = 0
     ORIENTATION_MAX = 63
     # How the sub changes direction
-    ANGLE_CHANGE_WIDTH = np.pi / 32
+    ANGLE_CHANGE_WIDTH = np.pi / 256
     ORIENTATION_TO_ANGLE = ANGLE_CHANGE_WIDTH / (ORIENTATION_MAX - ORIENTATION_MIN)
 
     # Warn

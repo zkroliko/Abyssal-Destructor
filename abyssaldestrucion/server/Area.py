@@ -19,7 +19,7 @@ class Area:
         return True if 0 < x < Area.SIZE_X and 0 < y < Area.SIZE_Y else False
 
     def is_warning_position(self, x, y):
-        return True if x < Area.WARN_X0 or x > Area.WARN_X1 or y < Area.WARN_Y0 or y > Area.WARN_Y1 else False
+        return not (x > Area.WARN_X0 and x < Area.WARN_X1 and y > Area.WARN_Y0 and y < Area.WARN_Y1)
 
     def __init__(self):
         self.vessels = []

@@ -10,9 +10,9 @@ from server.Visualiser import Visualiser
 class TestSubClass(unittest.TestCase):
     def test_init(self):
         a = Area()
-        sub1 = Sub(a)
-        sub2 = Sub(a)
-        sub3 = Sub(a)
+        sub1 = Sub(a, name="apollo")
+        sub2 = Sub(a, name="starbuck")
+        sub3 = Sub(a, name="husker")
         a.vessels.append(sub1)
         a.vessels.append(sub2)
         a.vessels.append(sub3)

@@ -45,9 +45,9 @@ class Weapon:
             angle = np.arctan(dx/dy)
             return angle + np.pi/2
         elif target.x < self.source.x and target.y < self.source.y:
-            angle = np.arctan(dx/dy)
+            angle = np.arctan(dy/dx)
             return angle + np.pi
         else:
-            angle = np.arctan(dy/dx)
+            angle = np.arctan(dx/dy)
             return angle + np.pi*3/2
 

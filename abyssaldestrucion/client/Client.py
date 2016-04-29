@@ -15,7 +15,7 @@ class Client:
 
     def on_message(self, client, obj, msg):
         # if no other handler serviced that message
-        print("Should not have got message from that topic: " + msg.topic)
+        pass
 
     def on_message_sonar_in(self, client, userdata, message):
         print("Received sonar_in " + message.payload)
@@ -34,7 +34,11 @@ class Client:
         l = str.split(message.payload, ":")
         id = int(l[0])
         value = int(l[1])
-        if (value >= 0 and value < 31 and id == self.id):
+        print("Got warning with value " + str(value))
+
+        if (value >= 0 and value <= 31 and id == self.id):
+
+            self.ser.write(chr(value))
             self.warning(value)
 
     def on_message_life(self, client, userdata, message):
@@ -107,17 +111,17 @@ class Client:
     def change_direction(self, orientation_change):
         # orientation change from 0-63
         print("Changed direction to " + str(orientation_change))
-        self.client.publish(main_topic + "/" + Topics.direction, self.message.get_direction_msg(orientation_change))
+        self.client.publish(main_topic + "/" + Topics.direction, self.message.get_direction_msg(orientation_change, self.id))
 
     def fire(self):
         # send to server information you fired
         print("Fired!")
-        self.client.publish(main_topic + "/" + Topics.weapon, self.message.get_fire_msg())
+        self.client.publish(main_topic + "/" + Topics.weapon, self.message.get_fire_msg(self.id))
 
     def send_ping(self):
         # sending ping to enemy vessel
         print("Ping sent!")
-        self.client.publish(main_topic + "/" + Topics.sonar_out, self.message.get_sonarout_msg())
+        self.client.publish(main_topic + "/" + Topics.sonar_out, self.message.get_sonarout_msg(self.id))
 
     def subscribe_on_topics(self):
         self.client.subscribe(main_topic + "/+", 0)
@@ -166,6 +170,7 @@ class Client:
         self.handle_methods()
         self.client.connect("192.168.17.52")
         self.subscribe_on_topics()
+        self.client.publish(main_topic+"/"+Topics.registering, str(self.id))
 
         thread = Thread(target=self.controller_loop, args=())
         thread.start()
